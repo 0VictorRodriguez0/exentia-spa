@@ -1,0 +1,334 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+  /* ===== OCULTAR campos nativos de GHL ===== */
+  .form-field-container:not(:has(.exf)) {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  button.button-element, .btn.btn-dark.button-element {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px !important; height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  .hl-text-sms-consent, .hl-text-marketing-consent, .privacy-and-tos {
+    display: none !important;
+  }
+
+  /* ===== FORM STYLES ===== */
+  .exf * { margin: 0; padding: 0; box-sizing: border-box; }
+  .exf {
+    font-family: 'Inter', sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 32px;
+    background: #fdfbf4;
+    color: #3d2d1a;
+    border-radius: 8px;
+  }
+  .exf-header { text-align: center; margin-bottom: 32px; }
+  .exf-header .logo { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-style: italic; color: #5c3a1e; }
+  .exf-header .sub { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #9a9854; }
+  .exf-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; color: #5c3a1e; margin-top: 16px; }
+  .exf-header h2 em { font-style: italic; color: #9a9854; }
+  .exf-header p { font-size: 13px; color: #8a7a66; margin-top: 6px; }
+
+  .exf-steps { display: flex; justify-content: center; gap: 8px; margin-bottom: 28px; }
+  .exf-step { width: 56px; height: 4px; border-radius: 2px; background: #e8dfc0; transition: background 0.3s; }
+  .exf-step.active { background: #9a9854; }
+
+  .exf-section { display: none; animation: exfF 0.4s ease; }
+  .exf-section.active { display: block; }
+  @keyframes exfF { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .exf-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #5c3a1e; margin-bottom: 6px; }
+  .exf-desc { font-size: 12px; color: #8a7a66; margin-bottom: 20px; }
+
+  /* Summary chips */
+  .exf-chips { background: #f3e4c7; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px; }
+  .exf-chips .label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #9a9854; font-weight: 500; margin-bottom: 8px; }
+  .exf-chips .items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .exf-chips .chip { padding: 5px 12px; background: #fff; border-radius: 20px; font-size: 12px; color: #5c3a1e; font-weight: 500; }
+  .exf-chips .empty { font-size: 12px; color: #8a7a66; font-style: italic; }
+
+  /* Conditional sections */
+  .exf-cond { display: none; margin-bottom: 14px; }
+  .exf-cond.show { display: block; }
+
+  /* Fields */
+  .exf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .exf-row.full { grid-template-columns: 1fr; }
+  .exf-f label { display: block; font-size: 12px; font-weight: 500; color: #3d2d1a; margin-bottom: 6px; }
+  .exf-f label .rq { color: #9a9854; }
+  .exf-f input, .exf-f select, .exf-f textarea {
+    width: 100%; padding: 12px 14px; border: 1.5px solid #e8dfc0; border-radius: 6px;
+    font-size: 13px; font-family: inherit; color: #3d2d1a; background: #fff; outline: none; transition: border-color 0.2s;
+  }
+  .exf-f input:focus, .exf-f select:focus, .exf-f textarea:focus { border-color: #9a9854; }
+  .exf-f input::placeholder, .exf-f textarea::placeholder { color: #c0b89a; }
+  .exf-f textarea { min-height: 72px; resize: vertical; }
+
+  /* Buttons */
+  .exf-btns { display: flex; gap: 12px; margin-top: 24px; }
+  .exf-btn { flex: 1; padding: 14px 24px; border: 1.5px solid #9a9854; border-radius: 4px; font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: all 0.3s; }
+  .exf-btn-p { background: #9a9854; color: #fff; }
+  .exf-btn-p:hover { background: #7d7c3f; }
+  .exf-btn-s { background: transparent; color: #9a9854; }
+  .exf-btn-s:hover { background: #faf4e4; }
+  .exf-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .exf-err { background: #fdf0f0; border: 1px solid #e8a0a0; color: #8b3a3a; padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-bottom: 14px; display: none; }
+  .exf-err.show { display: block; }
+  .exf-ok { display: none; text-align: center; padding: 40px 20px; }
+  .exf-ok.show { display: block; }
+  .exf-ok .ic { width: 64px; height: 64px; border-radius: 50%; background: #f3e4c7; border: 2px solid #9a9854; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 28px; color: #9a9854; }
+  .exf-ok h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: #5c3a1e; margin-bottom: 8px; }
+  .exf-ok p { font-size: 13px; color: #8a7a66; }
+
+  @media (max-width: 600px) {
+    .exf { padding: 24px 16px; }
+    .exf-row { grid-template-columns: 1fr; }
+    .exf-btns { flex-direction: column; }
+  }
+</style>
+
+<div class="exf" id="exf-form">
+  <div class="exf-header">
+    <div class="logo">exentia</div>
+    <div class="sub">SPA &amp; BEAUTY SALON</div>
+    <h2>Completa tu <em>reservacion</em></h2>
+    <p>Solo unos datos mas para confirmar tu cita</p>
+  </div>
+
+  <div class="exf-steps">
+    <div class="exf-step active" data-s="1"></div>
+    <div class="exf-step" data-s="2"></div>
+  </div>
+
+  <div class="exf-err" id="exf-err"></div>
+
+  <!-- PASO 1: SERVICIOS + PREGUNTAS -->
+  <div class="exf-section active" id="exf-s1">
+    <div class="exf-title">Tu experiencia</div>
+    <div class="exf-desc">Confirma tus servicios y responde unas preguntas rapidas</div>
+
+    <div class="exf-chips">
+      <div class="label">Servicios seleccionados</div>
+      <div class="items" id="exf-chips"></div>
+    </div>
+
+    <!-- Condicional: Masaje -->
+    <div class="exf-cond" id="exf-c-masaje">
+      <div class="exf-row full"><div class="exf-f">
+        <label>Presion de masaje preferida</label>
+        <select id="exf-presion"><option value="">Selecciona...</option><option>Suave</option><option>Media</option><option>Firme</option><option>Profunda</option><option>Sin preferencia</option></select>
+      </div></div>
+    </div>
+
+    <!-- Condicional: Facial -->
+    <div class="exf-cond" id="exf-c-facial">
+      <div class="exf-row full"><div class="exf-f">
+        <label>Tipo de piel</label>
+        <select id="exf-piel"><option value="">Selecciona...</option><option>Grasa</option><option>Seca</option><option>Mixta</option><option>Sensible</option><option>Normal</option><option>No lo se</option></select>
+      </div></div>
+    </div>
+
+    <!-- Condicional: SpaKids -->
+    <div class="exf-cond" id="exf-c-spakids">
+      <div class="exf-row full"><div class="exf-f">
+        <label>Edad del menor</label>
+        <input type="number" id="exf-edad" placeholder="Ej: 6" min="2" max="14">
+      </div></div>
+    </div>
+
+    <div class="exf-row full"><div class="exf-f">
+      <label>Primera visita a Exentia</label>
+      <select id="exf-primera"><option value="">Selecciona...</option><option>Si, es mi primera vez</option><option>No, ya he visitado antes</option></select>
+    </div></div>
+
+    <div class="exf-row full"><div class="exf-f">
+      <label>Alergias o condiciones medicas</label>
+      <textarea id="exf-alergias" placeholder="Alergias a fragancias, latex, productos, condiciones medicas..."></textarea>
+    </div></div>
+
+    <div class="exf-row full"><div class="exf-f">
+      <label>Notas o peticiones especiales</label>
+      <textarea id="exf-notas" placeholder="Cualquier detalle que quieras que sepamos..."></textarea>
+    </div></div>
+
+    <div class="exf-btns">
+      <button type="button" class="exf-btn exf-btn-p" onclick="exfGo(2)">Continuar</button>
+    </div>
+  </div>
+
+  <!-- PASO 2: DATOS PERSONALES -->
+  <div class="exf-section" id="exf-s2">
+    <div class="exf-title">Tus datos</div>
+    <div class="exf-desc">Para confirmar tu reservacion</div>
+
+    <div class="exf-chips">
+      <div class="label">Servicios seleccionados</div>
+      <div class="items" id="exf-chips2"></div>
+    </div>
+
+    <div class="exf-row">
+      <div class="exf-f"><label>Nombre <span class="rq">*</span></label><input type="text" id="exf-nom" placeholder="Tu nombre"></div>
+      <div class="exf-f"><label>Apellido <span class="rq">*</span></label><input type="text" id="exf-ape" placeholder="Tu apellido"></div>
+    </div>
+    <div class="exf-row">
+      <div class="exf-f"><label>Telefono (WhatsApp) <span class="rq">*</span></label><input type="tel" id="exf-tel" placeholder="998 123 4567"></div>
+      <div class="exf-f"><label>Correo electronico <span class="rq">*</span></label><input type="email" id="exf-ema" placeholder="tu@email.com"></div>
+    </div>
+
+    <div class="exf-btns">
+      <button type="button" class="exf-btn exf-btn-s" onclick="exfGo(1)">Regresar</button>
+      <button type="button" class="exf-btn exf-btn-p" onclick="exfDoSubmit()" id="exf-sub">Reservar Cita</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="exf-ok" id="exf-ok">
+    <div class="ic">&#10003;</div>
+    <h3>Cita Solicitada</h3>
+    <p>Recibiras confirmacion por WhatsApp</p>
+    <p style="margin-top:12px;font-size:11px;color:#9a9854;">Exentia Spa &amp; Beauty Salon</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ===== READ CART FROM LOCALSTORAGE =====
+  // Read services from URL params (sent by the page)
+  var cart = [];
+  var params = new URLSearchParams(window.location.search);
+  var urlSvc = params.get('servicios');
+  if (urlSvc) {
+    cart = decodeURIComponent(urlSvc).split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+  }
+  // Fallback: single service
+  var single = params.get('servicio');
+  if (single && cart.length === 0) {
+    cart = [decodeURIComponent(single)];
+  }
+
+  // ===== DETECT CATEGORIES =====
+  function getCats(items) {
+    var cats = new Set();
+    items.forEach(function(s) {
+      var lower = s.toLowerCase();
+      if (lower.includes('masaje') || lower.includes('piedras') || lower.includes('aromaterapia') || lower.includes('descontracturante')) cats.add('masaje');
+      if (lower.includes('facial') || lower.includes('limpieza facial') || lower.includes('antiedad') || lower.includes('desintoxicante') || lower.includes('hidratante')) cats.add('facial');
+      if (lower.includes('spa kids') || lower.includes('spakids') || lower.includes('mini')) cats.add('spakids');
+    });
+    return cats;
+  }
+
+  // ===== RENDER CHIPS =====
+  function renderChips() {
+    var html = '';
+    if (cart.length === 0) {
+      html = '<span class="empty">Selecciona servicios desde la pagina principal</span>';
+    } else {
+      cart.forEach(function(s) { html += '<span class="chip">' + s + '</span>'; });
+    }
+    var c1 = document.getElementById('exf-chips');
+    var c2 = document.getElementById('exf-chips2');
+    if (c1) c1.innerHTML = html;
+    if (c2) c2.innerHTML = html;
+  }
+
+  // ===== SHOW CONDITIONAL QUESTIONS =====
+  function showConditionals() {
+    var cats = getCats(cart);
+    var cm = document.getElementById('exf-c-masaje');
+    var cf = document.getElementById('exf-c-facial');
+    var cs = document.getElementById('exf-c-spakids');
+    if (cm) cm.className = 'exf-cond' + (cats.has('masaje') ? ' show' : '');
+    if (cf) cf.className = 'exf-cond' + (cats.has('facial') ? ' show' : '');
+    if (cs) cs.className = 'exf-cond' + (cats.has('spakids') ? ' show' : '');
+  }
+
+  // Init
+  renderChips();
+  showConditionals();
+
+  // ===== NAVIGATION =====
+  window.exfGo = function(step) {
+    document.getElementById('exf-err').classList.remove('show');
+    document.querySelectorAll('.exf-step').forEach(function(s) { s.classList.toggle('active', parseInt(s.dataset.s) <= step); });
+    document.querySelectorAll('.exf-section').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById('exf-s' + step).classList.add('active');
+    renderChips();
+    document.getElementById('exf-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // ===== SUBMIT =====
+  window.exfDoSubmit = function() {
+    var nom = document.getElementById('exf-nom').value.trim();
+    var ape = document.getElementById('exf-ape').value.trim();
+    var tel = document.getElementById('exf-tel').value.trim();
+    var ema = document.getElementById('exf-ema').value.trim();
+
+    if (!nom || !tel || !ema) {
+      var err = document.getElementById('exf-err');
+      err.textContent = 'Completa nombre, telefono y email';
+      err.classList.add('show');
+      return;
+    }
+
+    var btn = document.getElementById('exf-sub');
+    btn.textContent = 'Enviando...';
+    btn.disabled = true;
+
+    // Set GHL hidden fields
+    _set('first_name', nom);
+    _set('last_name', ape);
+    _set('phone', tel);
+    _set('email', ema);
+    _set('YdXMTdkEDSLVcstpRAtX', cart.join(', '));
+    _set('26FKQCpTI60jSUZVRv1L', document.getElementById('exf-piel').value);
+    _set('kfjWinFpLclgA3e65394', document.getElementById('exf-alergias').value);
+    _set('3X1Q3hARpiBH6UZK6xeV', document.getElementById('exf-presion').value);
+    _set('kjHgysIwIcyvzdOScV1C', document.getElementById('exf-primera').value);
+    _set('67CrR2g1U7HC5vwmGmKT', document.getElementById('exf-notas').value);
+
+    // FIRST: notify parent to open calendar (before GHL destroys our code)
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'exentia-form-submitted',
+        firstName: document.getElementById('exf-nom').value.trim(),
+        lastName: document.getElementById('exf-ape').value.trim(),
+        phone: document.getElementById('exf-tel').value.trim(),
+        email: document.getElementById('exf-ema').value.trim()
+      }, '*');
+    }
+
+    // THEN: click GHL native submit
+    setTimeout(function() {
+      var ghlBtn = document.querySelector('button.button-element');
+      if (ghlBtn) ghlBtn.click();
+    }, 300);
+  };
+
+  // ===== GHL FIELD SETTER (React-compatible) =====
+  function _set(name, value) {
+    if (!value && value !== 0) return;
+    var el = document.getElementsByName(name)[0] || document.getElementById(name);
+    if (!el) return;
+    var proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    var setter = Object.getOwnPropertyDescriptor(proto, 'value');
+    if (setter && setter.set) setter.set.call(el, value);
+    else el.value = value;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    el.dispatchEvent(new Event('blur', { bubbles: true }));
+  }
+})();
+</script>
