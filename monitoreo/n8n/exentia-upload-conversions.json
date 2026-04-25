@@ -1,0 +1,256 @@
+{
+  "name": "exentia-upload-conversions",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "5a000005-0000-0000-0000-000000000001",
+      "name": "Cron 1h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, booking_id, destino, tipo_evento, event_id, payload, retry_count\nFROM exentia.eventos_atribucion\nWHERE status = 'error'\n  AND retry_count < 5\n  AND created_at + (interval '1 hour' * power(2, retry_count)) <= now()\nORDER BY created_at\nLIMIT 50;",
+        "options": {}
+      },
+      "id": "5a000005-0000-0000-0000-000000000002",
+      "name": "Get failed events",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        460,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "gmDIcD6HxZUR2ixx",
+          "name": "Postgres account 2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.destino}}",
+                    "rightValue": "google_ads",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "outputKey": "google_ads"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.destino}}",
+                    "rightValue": "meta_capi",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "outputKey": "meta_capi"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5a000005-0000-0000-0000-000000000003",
+      "name": "Route by destino",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://googleads.googleapis.com/v17/customers/PENDIENTE/uploadClickConversions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer PENDIENTE_GOOGLE_ADS_OAUTH_TOKEN"
+            },
+            {
+              "name": "developer-token",
+              "value": "PENDIENTE_DEVELOPER_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.payload}}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "5a000005-0000-0000-0000-000000000004",
+      "name": "Google Ads upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        200
+      ],
+      "notes": "PENDIENTE: completar customerId + OAuth token + developer-token cuando entre Google Ads specialist (ex-Carem).",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v25.0/PENDIENTE_PIXEL_ID/events",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.payload}}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "5a000005-0000-0000-0000-000000000005",
+      "name": "Meta CAPI upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        400
+      ],
+      "notes": "PENDIENTE: completar pixel_id + access_token (scopes ads_management + ads_read + business_management). NO usar read_ads_dataset_quality.",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE exentia.eventos_atribucion\nSET status = CASE WHEN $2::int BETWEEN 200 AND 299 THEN 'ok' ELSE 'error' END,\n    retry_count = retry_count + 1,\n    response = $3::jsonb\nWHERE id = $1;",
+        "options": {
+          "queryReplacement": "={{$('Get failed events').item.json.id}},={{$json.statusCode || 0}},={{JSON.stringify($json)}}"
+        }
+      },
+      "id": "5a000005-0000-0000-0000-000000000006",
+      "name": "Update audit",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1120,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "gmDIcD6HxZUR2ixx",
+          "name": "Postgres account 2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "connections": {
+    "Cron 1h": {
+      "main": [
+        [
+          {
+            "node": "Get failed events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get failed events": {
+      "main": [
+        [
+          {
+            "node": "Route by destino",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by destino": {
+      "main": [
+        [
+          {
+            "node": "Google Ads upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Meta CAPI upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Ads upload": {
+      "main": [
+        [
+          {
+            "node": "Update audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta CAPI upload": {
+      "main": [
+        [
+          {
+            "node": "Update audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "exentia"
+    }
+  ]
+}

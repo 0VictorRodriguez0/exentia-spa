@@ -1,0 +1,24 @@
+{
+  "ga4": {
+    "measurement_id": "PENDIENTE_G-XXXXXXXXXX",
+    "property_name": "Exentia",
+    "stream_name": "Exentia Web",
+    "timezone": "America/Cancun",
+    "currency": "MXN"
+  },
+  "clarity": {
+    "project_id": "PENDIENTE_XXXXXXXXXX",
+    "project_name": "Exentia"
+  },
+  "google_ads": {
+    "customer_id": "PENDIENTE_FASE_9",
+    "conversion_action_id": "PENDIENTE_FASE_9",
+    "note": "Sub-cuenta bajo MCC 876-257-5839 (Ainnovation). Crear cuando entre el specialist (ex-Carem)."
+  },
+  "meta": {
+    "pixel_id": "PENDIENTE_FASE_2",
+    "capi_token": "PENDIENTE_FASE_2",
+    "capi_token_scopes_required": ["ads_management", "ads_read", "business_management"],
+    "note": "NO usar token con scope read_ads_dataset_quality (anti-pattern Sarahi). Coordinar con Jocelyn/Guene."
+  }
+}

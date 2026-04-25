@@ -1,0 +1,132 @@
+{
+  "name": "exentia-track",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "exentia-track",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "exentia-track-wh",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "exentia-track"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize tracking event\nlet body = $input.item.json.body || $input.item.json;\nif (typeof body === 'string') { try { body = JSON.parse(body); } catch(e) { body = {}; } }\nbody = body || {};\nconst headers = $input.item.json.headers || {};\n\nfunction genRef() {\n  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';\n  let r = '';\n  for (let i = 0; i < 8; i++) r += chars[Math.floor(Math.random()*chars.length)];\n  return r;\n}\n\nconst lead_ref = body.lead_ref || genRef();\n\nconst payload = {\n  lead_ref,\n  session_id: body.session_id || null,\n  event_type: body.event_type || 'unknown',\n  page_path: body.page_path || null,\n  landing_version: body.landing_version || null,\n  gclid: body.gclid || null, gbraid: body.gbraid || null, wbraid: body.wbraid || null,\n  fbclid: body.fbclid || null, msclkid: body.msclkid || null,\n  utm_source: body.utm_source || null, utm_medium: body.utm_medium || null,\n  utm_campaign: body.utm_campaign || null, utm_content: body.utm_content || null,\n  utm_term: body.utm_term || null,\n  utm_source_first: body.utm_source_first || null, utm_medium_first: body.utm_medium_first || null,\n  utm_campaign_first: body.utm_campaign_first || null, utm_content_first: body.utm_content_first || null,\n  utm_term_first: body.utm_term_first || null,\n  referrer: body.referrer || null,\n  time_on_page_ms: body.time_on_page_ms ?? null,\n  scroll_depth_pct: body.scroll_depth_pct ?? null,\n  user_agent: body.user_agent || headers['user-agent'] || null,\n  device_type: body.device_type || null,\n  screen_size: body.screen_size || null,\n  language: body.language || null,\n  timezone_offset: body.timezone_offset ?? null,\n  ghl_contact_id: body.ghl_contact_id || null,\n  extra: body.extra || {}\n};\nreturn { json: { payload, lead_ref } };"
+      },
+      "id": "exentia-track-nm",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO exentia.leads (lead_ref, session_id, event_type, page_path, landing_version,\ngclid, gbraid, wbraid, fbclid, msclkid,\nutm_source, utm_medium, utm_campaign, utm_content, utm_term,\nutm_source_first, utm_medium_first, utm_campaign_first, utm_content_first, utm_term_first,\nreferrer, time_on_page_ms, scroll_depth_pct,\nuser_agent, device_type, screen_size, language, timezone_offset,\nghl_contact_id, extra)\nSELECT lead_ref, session_id, event_type, page_path, landing_version,\ngclid, gbraid, wbraid, fbclid, msclkid,\nutm_source, utm_medium, utm_campaign, utm_content, utm_term,\nutm_source_first, utm_medium_first, utm_campaign_first, utm_content_first, utm_term_first,\nreferrer, time_on_page_ms, scroll_depth_pct,\nuser_agent, device_type, screen_size, language, timezone_offset,\nghl_contact_id, extra\nFROM jsonb_populate_record(NULL::exentia.leads, $1::jsonb)\nRETURNING id, lead_ref;",
+        "options": {
+          "queryReplacement": "={{ JSON.stringify($json.payload) }}"
+        }
+      },
+      "id": "exentia-track-pg",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "gmDIcD6HxZUR2ixx",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "exentia-track-rs",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "exentia"
+    }
+  ]
+}

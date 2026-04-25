@@ -1,0 +1,138 @@
+{
+  "exentia_lead_ref": {
+    "id": "JgsK2j4h1p6Gf7pw0WDS",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_session_id": {
+    "id": "m2T7bJXb743tv8Fr5CYm",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_gclid": {
+    "id": "xgBoQXRSmURvYvhaxEzN",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_gbraid": {
+    "id": "VMVsbqSVDm4gdyEs2v1b",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_wbraid": {
+    "id": "nk1BS3Kwj7r2eMObkDWB",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_fbclid": {
+    "id": "vx52ah4vkjC7OENE0lWU",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_msclkid": {
+    "id": "gyXRqirFANa0j04LJftw",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_source_first": {
+    "id": "4pHSot2psibGEftwwwQj",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_medium_first": {
+    "id": "49m6ceXNc9kJ3eEothHJ",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_campaign_first": {
+    "id": "Wj2wzasOtWcHCq85N7oR",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_content_first": {
+    "id": "KkdQb3t0bXUgFgznaVOi",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_term_first": {
+    "id": "rb3Gyky24iChjydRPoUA",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_source_last": {
+    "id": "37CfTVmnM6SUFq6XUnHh",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_medium_last": {
+    "id": "NZPrbivrqIQFQx40cSsD",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_campaign_last": {
+    "id": "Kc5n7iZqisG3PBKhufQd",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_content_last": {
+    "id": "bcB5G48NCjNt3Yvj72IU",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_utm_term_last": {
+    "id": "BTib1rSFpeDJBVpFrLWf",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_referrer": {
+    "id": "iv9SZutk2su2yqnrLrEe",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_landing_version": {
+    "id": "O85Ae74f2a6OYGAR0neM",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_servicio_elegido": {
+    "id": "ETSBOfoZqy1ng2RFBPzm",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_zona": {
+    "id": "vVUbV7gxxxTpfefQyCLG",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_direccion_maps_url": {
+    "id": "vdduFA9OmAPkD23SVxZY",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_preferencia_sexo": {
+    "id": "Ufj0CBEGwYouDqvcwPXD",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_terapeuta_asignado": {
+    "id": "vo3uPUct6AYTdqkB11q0",
+    "status": "created",
+    "dataType": "TEXT"
+  },
+  "exentia_es_recurrente": {
+    "id": "57XildOEgxfCPgDs0CwA",
+    "status": "created",
+    "dataType": "CHECKBOX",
+    "note": "picklist label mal codificado, no afecta funcionalidad"
+  },
+  "exentia_fotos_casa_count": {
+    "id": "1lzQGjkRUKdmKuIVW2jC",
+    "status": "created",
+    "dataType": "NUMERICAL"
+  },
+  "exentia_valor_ticket_mxn": {
+    "id": "E3eEAnNb1rXfbh0Up3EE",
+    "status": "created",
+    "dataType": "MONETORY"
+  }
+}

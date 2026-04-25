@@ -1,0 +1,17 @@
+{
+  "id": "0yWVmwR1YLLZfwjPXRcw",
+  "name": "Reservas",
+  "locationId": "0hGSRrhxkdywVQxCsNOi",
+  "createdAt": "2026-04-25T20:35:54.863Z",
+  "stages": [
+    { "position": 0, "name": "Lead entro",  "id": "9aff0e61-5b5f-4651-9c21-8d0fb969962c", "tag": "etapa_lead_entro" },
+    { "position": 1, "name": "Cotizo",      "id": "d995fc73-4a35-4c2d-b317-19e4949f43f9", "tag": "etapa_cotizo" },
+    { "position": 2, "name": "Reservo",     "id": "adcfdc94-7ca1-4fa2-a12f-1594ad095c9d", "tag": "etapa_reservo" },
+    { "position": 3, "name": "Agendado",    "id": "30b56a7b-5f63-4557-a4fd-268d62afc4c3", "tag": "etapa_agendado" },
+    { "position": 4, "name": "Confirmado",  "id": "07dd0bbd-add2-40b1-889a-45fe7bee8247", "tag": "etapa_confirmado" },
+    { "position": 5, "name": "Asistio",     "id": "738c9d16-daa7-4040-a538-d7e9b732ccfd", "tag": "etapa_asistio" },
+    { "position": 6, "name": "Pago",        "id": "53fbeac3-0d2a-4407-b59a-513a959f9365", "tag": "etapa_pago" },
+    { "position": 7, "name": "Resena",      "id": "91da7d27-4b42-4012-a3a8-31af7695d6b2", "tag": "etapa_resena" },
+    { "position": 8, "name": "Recurrente",  "id": "59351f92-1d0f-458a-adaa-fdf5a95c36ff", "tag": "etapa_recurrente" }
+  ]
+}

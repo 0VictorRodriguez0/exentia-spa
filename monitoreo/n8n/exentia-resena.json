@@ -1,0 +1,132 @@
+{
+  "name": "exentia-resena",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "exentia-resena",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "exentia-resena-wh",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "exentia-resena"
+    },
+    {
+      "parameters": {
+        "jsCode": "let body = $input.item.json.body || $input.item.json;\nif (typeof body === 'string') { try { body = JSON.parse(body); } catch(e) { body = {}; } }\nbody = body || {};\nif (!body.booking_id) throw new Error('booking_id requerido');\nconst rating = parseInt(body.rating, 10);\nif (!rating || rating < 1 || rating > 5) throw new Error('rating debe ser 1-5');\nconst payload = {\n  booking_id: body.booking_id,\n  rating: rating,\n  texto: body.texto || null\n};\nreturn { json: { payload } };"
+      },
+      "id": "exentia-resena-nm",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE exentia.bookings\nSET resena_respondida_at = now(),\n    resena_rating = (($1::jsonb)->>'rating')::int,\n    resena_texto = ($1::jsonb)->>'texto',\n    estado = 'resenado'\nWHERE id = (($1::jsonb)->>'booking_id')::uuid\nRETURNING id, booking_code, resena_rating;",
+        "options": {
+          "queryReplacement": "={{ JSON.stringify($json.payload) }}"
+        }
+      },
+      "id": "exentia-resena-pg",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "gmDIcD6HxZUR2ixx",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "exentia-resena-rs",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "exentia"
+    }
+  ]
+}

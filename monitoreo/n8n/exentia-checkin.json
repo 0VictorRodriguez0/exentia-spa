@@ -1,0 +1,132 @@
+{
+  "name": "exentia-checkin",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "exentia-checkin",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "exentia-checkin-wh",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "exentia-checkin"
+    },
+    {
+      "parameters": {
+        "jsCode": "let body = $input.item.json.body || $input.item.json;\nif (typeof body === 'string') { try { body = JSON.parse(body); } catch(e) { body = {}; } }\nbody = body || {};\nif (!body.booking_id) throw new Error('booking_id requerido');\nconst payload = {\n  booking_id: body.booking_id,\n  lat: body.lat ?? null,\n  lng: body.lng ?? null\n};\nreturn { json: { payload } };"
+      },
+      "id": "exentia-checkin-nm",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE exentia.bookings\nSET checkin_terapeuta_at = now(),\n    checkin_lat = NULLIF(($1::jsonb)->>'lat','')::numeric,\n    checkin_lng = NULLIF(($1::jsonb)->>'lng','')::numeric,\n    estado = 'asistio'\nWHERE id = (($1::jsonb)->>'booking_id')::uuid\nRETURNING id, booking_code, checkin_terapeuta_at;",
+        "options": {
+          "queryReplacement": "={{ JSON.stringify($json.payload) }}"
+        }
+      },
+      "id": "exentia-checkin-pg",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "gmDIcD6HxZUR2ixx",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "exentia-checkin-rs",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "exentia"
+    }
+  ]
+}

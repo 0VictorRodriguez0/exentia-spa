@@ -3,6 +3,3 @@
 __pycache__/
 .claude/
 node_modules/
-
-# Backend / monitoreo (local-only — nunca publicar)
-monitoreo/

@@ -1,0 +1,242 @@
+{
+  "gen_servicio_masaje_relajante": {
+    "id": "SNZmzrtfq8SrEm1QjUjg",
+    "status": "created"
+  },
+  "gen_servicio_masaje_piedras_calientes": {
+    "id": "2ZehWnhbZhdfwHDGQzUa",
+    "status": "created"
+  },
+  "gen_servicio_masaje_aromaterapia": {
+    "id": "B7pro54oC3NH25JGfpkb",
+    "status": "created"
+  },
+  "gen_servicio_masaje_descontracturante": {
+    "id": "Tn5wOxSOrAOvpiTVw9YN",
+    "status": "created"
+  },
+  "gen_servicio_facial_limpieza_profunda": {
+    "id": "iFtpjgDRx72MBADhFyJp",
+    "status": "created"
+  },
+  "gen_servicio_facial_hidratante": {
+    "id": "4zIUZFL7MEgOBEoAdY97",
+    "status": "created"
+  },
+  "gen_servicio_facial_antiedad": {
+    "id": "OG0Rfb6eF22HrtGNTNhe",
+    "status": "created"
+  },
+  "gen_servicio_facial_desintoxicante": {
+    "id": "247l4iV1C3Q0ytIgxNMx",
+    "status": "created"
+  },
+  "gen_servicio_unas_acrilicas_naturales": {
+    "id": "bNV7NKJIcxML9XWtOVuE",
+    "status": "created"
+  },
+  "gen_servicio_unas_acrilicas_diseno": {
+    "id": "i9OhRn0UdpPR8ptzFsua",
+    "status": "created"
+  },
+  "gen_servicio_unas_gel": {
+    "id": "gUDPYKfeedXZV3mVYcId",
+    "status": "created"
+  },
+  "gen_servicio_dip_powder": {
+    "id": "HaZNxTvTXYAMq227ENMY",
+    "status": "created"
+  },
+  "gen_servicio_manicure_spa": {
+    "id": "JpJ7NXiFnEjMtEwdHdh0",
+    "status": "created"
+  },
+  "gen_servicio_pedicure_spa": {
+    "id": "z7RjplNTj5FKF0FwAFiO",
+    "status": "created"
+  },
+  "gen_servicio_cabello_corte_peinado": {
+    "id": "DzOeLTHwX5rWIDwHtJ3j",
+    "status": "created"
+  },
+  "gen_servicio_cabello_color_global": {
+    "id": "UrbI7p9tjHTP1RrdH4nT",
+    "status": "created"
+  },
+  "gen_servicio_cabello_balayage": {
+    "id": "P3HUDCoJV90yb8R8eulc",
+    "status": "created"
+  },
+  "gen_servicio_cabello_tratamiento": {
+    "id": "sCHDU4Z0qnxBslIVCusW",
+    "status": "created"
+  },
+  "gen_servicio_cabello_peinado_evento": {
+    "id": "FGOuinhpP26jaGB3lJln",
+    "status": "created"
+  },
+  "gen_servicio_depilacion_cera": {
+    "id": "VmApGVkoLgF26i7BhMAT",
+    "status": "created"
+  },
+  "gen_servicio_diseno_cejas": {
+    "id": "ahJLNj1y10iKdOpsH7N7",
+    "status": "created"
+  },
+  "gen_servicio_lash_lifting": {
+    "id": "SIndTAudLHIBozYBZCsD",
+    "status": "created"
+  },
+  "gen_servicio_extensiones_pestanas": {
+    "id": "BhJmuXph2yoUktoTDABV",
+    "status": "created"
+  },
+  "gen_servicio_maquillaje_social": {
+    "id": "NnK3wMxQGNt0Y3poDTw2",
+    "status": "created"
+  },
+  "gen_servicio_maquillaje_novia": {
+    "id": "fHiRsTWah6VLhoiOgDe6",
+    "status": "created"
+  },
+  "gen_servicio_kids_mini_manicure": {
+    "id": "LyB8WGHC1GHLFsAiJ7Hi",
+    "status": "created"
+  },
+  "gen_servicio_kids_mini_pedicure": {
+    "id": "WQyj3bCNyOo9USGdaHWa",
+    "status": "created"
+  },
+  "gen_servicio_kids_mini_spa": {
+    "id": "gcq4dyDFYRS25wRJlKfI",
+    "status": "created"
+  },
+  "gen_servicio_kids_peinado_princesa": {
+    "id": "yqEVpDMxLlJC1xYEmPlR",
+    "status": "created"
+  },
+  "gen_zona_sm1": {
+    "id": "6AnmCXhejMB4c5k7dPiG",
+    "status": "created"
+  },
+  "gen_zona_sm24": {
+    "id": "gbDk9c3KbA0i7xwMDb6d",
+    "status": "created"
+  },
+  "gen_zona_puerto_cancun": {
+    "id": "q2HBqyCeQPYUvf2V4khV",
+    "status": "created"
+  },
+  "gen_zona_zona_hotelera": {
+    "id": "sp0vaODz4uhaXnTkIxtn",
+    "status": "created"
+  },
+  "gen_zona_bonampak": {
+    "id": "kZOSriyDdesfsW4KnDiJ",
+    "status": "created"
+  },
+  "gen_zona_malecon_americas": {
+    "id": "4NHzClrpuwgH7NDTDFKs",
+    "status": "created"
+  },
+  "gen_zona_puerto_juarez": {
+    "id": "IdhkYINCdvbZIaJxGMS9",
+    "status": "created"
+  },
+  "gen_zona_huayacan": {
+    "id": "S8sZr5J4tV6NYgweIIZL",
+    "status": "created"
+  },
+  "canal_google": {
+    "id": "Mc2u0vJtbdpdA65TbYIt",
+    "status": "created"
+  },
+  "canal_meta": {
+    "id": "ZsoF33n0iPNIozqgunfD",
+    "status": "created"
+  },
+  "canal_organico": {
+    "id": "5r1BQnPZH4zLoINPMJQj",
+    "status": "created"
+  },
+  "canal_directo": {
+    "id": "m2Ve9w6YzR312kYVh6yj",
+    "status": "created"
+  },
+  "canal_referencia": {
+    "id": "uXgS1PIrCTwJKrG83dNo",
+    "status": "created"
+  },
+  "etapa_lead_entro": {
+    "id": "0lwjyoAtDb3jUjouPEBJ",
+    "status": "created"
+  },
+  "etapa_cotizo": {
+    "id": "nucnZa3mw4z5ewwgRo52",
+    "status": "created"
+  },
+  "etapa_reservo": {
+    "id": "IylMfKRbSZZ2cURjA45K",
+    "status": "created"
+  },
+  "etapa_agendado": {
+    "id": "3TtGcim7dlEjFTbaNrfQ",
+    "status": "created"
+  },
+  "etapa_confirmado": {
+    "id": "PKuRUIdC4bPk75IwPorc",
+    "status": "created"
+  },
+  "etapa_asistio": {
+    "id": "CcQ8TazIa1C29M2zW8XF",
+    "status": "created"
+  },
+  "etapa_pago": {
+    "id": "dpREcv1TBkMqPhGkEVd2",
+    "status": "created"
+  },
+  "etapa_resena": {
+    "id": "iGy9SpwXyvYNzALgR2la",
+    "status": "created"
+  },
+  "etapa_recurrente": {
+    "id": "ClgypyJk1njuUgXs1ez7",
+    "status": "created"
+  },
+  "preferencia_hombre": {
+    "id": "B6bLiTfBvQiFGPyQ0P18",
+    "status": "created"
+  },
+  "preferencia_mujer": {
+    "id": "3rdiLLuBJ24CxvqTsZ1D",
+    "status": "created"
+  },
+  "preferencia_indistinto": {
+    "id": "gDwU5iIE7fUAXmfvwnAh",
+    "status": "created"
+  },
+  "recurrente": {
+    "id": "5ekwgTnHL7l6V8gmd1dc",
+    "status": "created"
+  },
+  "opt_out": {
+    "id": "IDITPbjjVx4BmNHYiuU3",
+    "status": "created"
+  },
+  "no_show": {
+    "id": "a1KMSffeo4yItxYuSXvu",
+    "status": "created"
+  },
+  "cancelado": {
+    "id": "Ph1rY0HuFNk79bEdOteh",
+    "status": "created"
+  },
+  "vip": {
+    "id": "drMlBP7hF1oiP7WVC6DO",
+    "status": "created"
+  },
+  "nuevo_30d": {
+    "id": "6DZe1OGSHCMfWVr2ihkj",
+    "status": "created"
+  }
+}

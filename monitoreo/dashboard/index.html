@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exentia &#8212; Dashboard</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:#fdfbf4; color:#5c3a1e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; }
+
+  /* Escape GHL wrapper if pasted as srcdoc */
+  body { min-height: 100vh; }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid #e8dfc0;
+    margin-bottom: 24px;
+  }
+  header.top h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 500; margin: 0; color: #5c3a1e; }
+  header.top h1 em { color: #9a9854; font-style: italic; }
+  .status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#9a9854; margin-right:6px; vertical-align:middle; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .last-update { font-size:11px; color:#8a7a66; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: #fff; border: 1px solid #e8dfc0; border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .card h3 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #8a7a66; font-weight: 600; margin: 0 0 8px 0;
+  }
+  .kpi { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 500; color: #5c3a1e; line-height: 1.1; }
+  .kpi small { font-size: 14px; color:#8a7a66; font-family: inherit; font-weight: 400; }
+
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: #5c3a1e; font-weight: 600; margin: 32px 0 12px 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table th, table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #f3e4c7; }
+  table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #8a7a66; font-weight: 600; background: #fdfbf4; position: sticky; top: 0; }
+  table tbody tr:hover { background: #fdfbf4; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:500; }
+  .pill.view { background:#eef2ff; color:#3730a3; }
+  .pill.scroll { background:#f3e4c7; color:#5c3a1e; }
+  .pill.wa { background:#dcfce7; color:#15803d; }
+  .pill.call { background:#dbeafe; color:#1e40af; }
+  .pill.form { background:#fef3c7; color:#854d0e; }
+  .pill.calendar { background:#ede9fe; color:#5b21b6; }
+  .pill.other { background:#f3f4f6; color:#4b5563; }
+
+  .scroll-tbl { max-height: 380px; overflow-y: auto; border:1px solid #e8dfc0; border-radius:8px; background:#fff; }
+
+  canvas { max-height: 280px; }
+  .chart-wrap { background:#fff; border:1px solid #e8dfc0; border-radius:8px; padding:18px 20px; }
+  .chart-wrap h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #8a7a66; font-weight: 600; margin: 0 0 12px 0; }
+
+  .funnel { display:flex; gap:0; margin-top:8px; }
+  .funnel-step { flex:1; text-align:center; padding:14px 8px; background:#fff; border:1px solid #e8dfc0; border-right:none; }
+  .funnel-step:last-child { border-right:1px solid #e8dfc0; border-radius: 0 8px 8px 0; }
+  .funnel-step:first-child { border-radius:8px 0 0 8px; }
+  .funnel-step .n { font-family: 'Cormorant Garamond', Georgia, serif; font-size:24px; color:#5c3a1e; font-weight:500; }
+  .funnel-step .lbl { font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#8a7a66; margin-top:4px; }
+
+  footer.bottom { margin-top:40px; padding-top:16px; border-top:1px solid #e8dfc0; font-size:11px; color:#8a7a66; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>Exentia <em>&#8212; Dashboard</em></h1>
+    <div class="last-update"><span class="status-dot"></span><span id="last-update">Cargando&#8230;</span></div>
+  </header>
+
+  <!-- KPIs HOY -->
+  <div class="section-title">Hoy</div>
+  <div class="grid grid-4">
+    <div class="card"><h3>Reservas hoy</h3><div class="kpi" id="kpi-reservas-hoy">&#8212;</div></div>
+    <div class="card"><h3>Pagadas hoy</h3><div class="kpi" id="kpi-pagadas-hoy">&#8212;</div></div>
+    <div class="card"><h3>Revenue hoy</h3><div class="kpi" id="kpi-revenue-hoy">&#8212;</div></div>
+    <div class="card"><h3>Ticket promedio</h3><div class="kpi" id="kpi-ticket">&#8212;</div></div>
+  </div>
+
+  <!-- KPIs 7D -->
+  <div class="section-title">&#218;ltimos 7 d&#237;as</div>
+  <div class="grid grid-4">
+    <div class="card"><h3>Reservas 7d</h3><div class="kpi" id="kpi-reservas-7d">&#8212;</div></div>
+    <div class="card"><h3>Revenue 7d</h3><div class="kpi" id="kpi-revenue-7d">&#8212;</div></div>
+    <div class="card"><h3>Clientes &#250;nicos</h3><div class="kpi" id="kpi-clientes">&#8212;</div></div>
+    <div class="card"><h3>Sesiones 24h</h3><div class="kpi"><span id="kpi-sessions">&#8212;</span> <small id="kpi-conv">&#8212;</small></div></div>
+  </div>
+
+  <!-- FUNNEL -->
+  <div class="section-title">Embudo de conversi&#243;n (7d)</div>
+  <div class="funnel" id="funnel"></div>
+
+  <!-- CHARTS -->
+  <div class="section-title">Tracking</div>
+  <div class="grid grid-2">
+    <div class="chart-wrap">
+      <h3>Eventos &#250;ltimas 24h</h3>
+      <canvas id="chart-events"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <h3>Revenue por canal (7d)</h3>
+      <canvas id="chart-channel"></canvas>
+    </div>
+  </div>
+
+  <!-- BOOKINGS RECIENTES -->
+  <div class="section-title">Reservas recientes (PII enmascarada)</div>
+  <div class="scroll-tbl">
+    <table>
+      <thead>
+        <tr>
+          <th>Folio</th><th>Fecha</th><th>Estado</th><th>Cliente</th><th>Tel&#233;fono</th>
+          <th>Zona</th><th>Pref.</th><th>Servicios</th><th>Monto</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-bookings"></tbody>
+    </table>
+  </div>
+
+  <!-- EVENTOS RECIENTES -->
+  <div class="section-title">Eventos recientes</div>
+  <div class="scroll-tbl">
+    <table>
+      <thead>
+        <tr><th>Hora</th><th>Tipo</th><th>P&#225;gina</th><th>Device</th><th>Canal</th><th>Lead Ref</th></tr>
+      </thead>
+      <tbody id="tbl-events"></tbody>
+    </table>
+  </div>
+
+  <footer class="bottom">
+    Exentia Dashboard &#183; Datos de Supabase &#183; Auto-refresh 30s &#183;
+    <a href="#" id="manual-refresh" style="color:#9a9854;">Actualizar ahora</a>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  // Anon key — read-only por RLS, solo SELECT en views public.exentia_*
+  var SUPABASE_URL = 'https://fneppfjeywhayknrgahe.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuZXBwZmpleXdoYXlrbnJnYWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4NjMzMTQsImV4cCI6MjA3NTQzOTMxNH0.DuSL3Dv44AtASDam5uL1NJecy141rT5NFaYNRtPcnvw';
+  var REFRESH_MS = 30000;
+
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  var charts = {};
+
+  function fmtMoney(v) {
+    if (v == null || isNaN(v)) return '$0';
+    return '$' + Number(v).toLocaleString('es-MX', {maximumFractionDigits: 0});
+  }
+  function fmtTime(ts) {
+    if (!ts) return '\u2014';
+    var d = new Date(ts);
+    var now = new Date();
+    var same = d.toDateString() === now.toDateString();
+    var t = d.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+    return same ? t : d.toLocaleDateString('es-MX',{month:'short',day:'numeric'}) + ' ' + t;
+  }
+  function pillClass(t) {
+    if (!t) return 'other';
+    if (t.indexOf('whatsapp') !== -1) return 'wa';
+    if (t.indexOf('call') !== -1) return 'call';
+    if (t.indexOf('form') !== -1) return 'form';
+    if (t === 'page_view') return 'view';
+    if (t.indexOf('scroll') === 0) return 'scroll';
+    if (t.indexOf('calendar') !== -1) return 'calendar';
+    return 'other';
+  }
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
+  async function loadKpisToday() {
+    var r = await sb.from('exentia_kpis_today').select('*').single();
+    if (r.error) return;
+    var d = r.data;
+    document.getElementById('kpi-reservas-hoy').textContent = d.reservas_hoy;
+    document.getElementById('kpi-pagadas-hoy').textContent = d.pagadas_hoy;
+    document.getElementById('kpi-revenue-hoy').textContent = fmtMoney(d.revenue_hoy);
+    document.getElementById('kpi-ticket').textContent = fmtMoney(d.ticket_promedio);
+  }
+
+  async function loadKpis7d() {
+    var [k7, sess] = await Promise.all([
+      sb.from('exentia_kpis_7d').select('*').single(),
+      sb.from('exentia_sessions_summary').select('*').single()
+    ]);
+    if (k7.data) {
+      document.getElementById('kpi-reservas-7d').textContent = k7.data.reservas_7d;
+      document.getElementById('kpi-revenue-7d').textContent = fmtMoney(k7.data.revenue_7d);
+      document.getElementById('kpi-clientes').textContent = k7.data.clientes_unicos_7d;
+    }
+    if (sess.data) {
+      var s = sess.data;
+      document.getElementById('kpi-sessions').textContent = s.sessions_24h || 0;
+      var convPct = s.sessions_24h > 0 ? Math.round(100 * s.sessions_convirtieron_wa / s.sessions_24h) : 0;
+      document.getElementById('kpi-conv').textContent = ' \u00b7 ' + convPct + '% conv WA';
+    }
+  }
+
+  async function loadFunnel() {
+    var r = await sb.from('exentia_funnel_7d').select('*').single();
+    if (r.error || !r.data) return;
+    var d = r.data;
+    var steps = [
+      ['Visitas', d.visits],
+      ['Form abierto', d.form_opened],
+      ['Form enviado', d.form_submitted],
+      ['Click WA', d.wa_clicks],
+      ['Calendario', d.calendar_views],
+      ['Booking OK', d.bookings_via_calendar]
+    ];
+    document.getElementById('funnel').innerHTML = steps.map(function(s){
+      return '<div class="funnel-step"><div class="n">'+(s[1]||0)+'</div><div class="lbl">'+s[0]+'</div></div>';
+    }).join('');
+  }
+
+  async function loadEvents24h() {
+    var r = await sb.from('exentia_events_24h').select('*');
+    if (r.error || !r.data) return;
+    var labels = r.data.map(function(d){return d.event_type;});
+    var counts = r.data.map(function(d){return d.n;});
+    if (charts.events) charts.events.destroy();
+    charts.events = new Chart(document.getElementById('chart-events'), {
+      type: 'bar',
+      data: { labels: labels, datasets: [{ label: 'Eventos', data: counts, backgroundColor: '#9a9854' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  async function loadChannel7d() {
+    var r = await sb.from('exentia_revenue_by_channel_7d').select('*');
+    if (r.error || !r.data || r.data.length === 0) {
+      if (charts.channel) charts.channel.destroy();
+      return;
+    }
+    var labels = r.data.map(function(d){return d.canal;});
+    var revenue = r.data.map(function(d){return Number(d.revenue);});
+    if (charts.channel) charts.channel.destroy();
+    charts.channel = new Chart(document.getElementById('chart-channel'), {
+      type: 'doughnut',
+      data: { labels: labels, datasets: [{ data: revenue, backgroundColor: ['#9a9854','#5c3a1e','#f3e4c7','#7d7c3f','#b8a16f','#e0c896'] }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+    });
+  }
+
+  async function loadBookings() {
+    var r = await sb.from('exentia_bookings_safe').select('*').limit(50);
+    if (r.error || !r.data) return;
+    var rows = r.data.map(function(b) {
+      var servicios = '';
+      try {
+        if (Array.isArray(b.servicios)) servicios = b.servicios.map(function(s){return s.slug;}).join(', ');
+        else if (typeof b.servicios === 'object' && b.servicios) servicios = Object.values(b.servicios).map(function(s){return s.slug || s;}).join(', ');
+      } catch(e){}
+      return '<tr>' +
+        '<td>'+esc(b.booking_code)+'</td>' +
+        '<td>'+esc(b.fecha_agendada || '\u2014')+'</td>' +
+        '<td><span class="pill '+pillClass(b.estado)+'">'+esc(b.estado)+'</span></td>' +
+        '<td>'+esc(b.cliente_iniciales)+'</td>' +
+        '<td>'+esc(b.telefono_mask)+'</td>' +
+        '<td>'+esc(b.zona_colonia || '\u2014')+'</td>' +
+        '<td>'+esc(b.preferencia_sexo || '\u2014')+'</td>' +
+        '<td>'+esc(servicios)+'</td>' +
+        '<td>'+(b.pago_monto_mxn ? fmtMoney(b.pago_monto_mxn) : '\u2014')+'</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('tbl-bookings').innerHTML = rows || '<tr><td colspan="9" style="text-align:center;color:#8a7a66;padding:24px">Sin reservas a&#250;n</td></tr>';
+  }
+
+  async function loadEventsTbl() {
+    var r = await sb.from('exentia_recent_events').select('*');
+    if (r.error || !r.data) return;
+    var rows = r.data.map(function(e) {
+      return '<tr>' +
+        '<td>'+esc(fmtTime(e.created_at))+'</td>' +
+        '<td><span class="pill '+pillClass(e.event_type)+'">'+esc(e.event_type)+'</span></td>' +
+        '<td>'+esc(e.page_path || '\u2014')+'</td>' +
+        '<td>'+esc(e.device_type || '\u2014')+'</td>' +
+        '<td>'+esc(e.utm_source || (e.gclid ? 'google' : (e.fbclid ? 'meta' : 'directo')))+'</td>' +
+        '<td style="font-family:monospace;font-size:11px">'+esc(e.lead_ref || '\u2014')+'</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('tbl-events').innerHTML = rows || '<tr><td colspan="6" style="text-align:center;color:#8a7a66;padding:24px">Sin eventos</td></tr>';
+  }
+
+  async function refreshAll() {
+    document.getElementById('last-update').textContent = 'Actualizando\u2026';
+    try {
+      await Promise.all([
+        loadKpisToday(), loadKpis7d(), loadFunnel(),
+        loadEvents24h(), loadChannel7d(),
+        loadBookings(), loadEventsTbl()
+      ]);
+      document.getElementById('last-update').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    } catch(e) {
+      console.error(e);
+      document.getElementById('last-update').textContent = 'Error: ' + e.message;
+    }
+  }
+
+  // Initial load + auto-refresh
+  refreshAll();
+  setInterval(refreshAll, REFRESH_MS);
+
+  document.getElementById('manual-refresh').addEventListener('click', function(e){
+    e.preventDefault();
+    refreshAll();
+  });
+
+  // Realtime subscription para reservas y leads (instant updates)
+  try {
+    sb.channel('exentia-realtime')
+      .on('postgres_changes', { event: '*', schema: 'exentia', table: 'bookings' }, function(){ loadKpisToday(); loadKpis7d(); loadBookings(); loadFunnel(); })
+      .on('postgres_changes', { event: '*', schema: 'exentia', table: 'leads' }, function(){ loadEvents24h(); loadEventsTbl(); loadFunnel(); })
+      .subscribe();
+  } catch(e) { console.warn('realtime unavailable', e); }
+})();
+</script>
+</body>
+</html>
