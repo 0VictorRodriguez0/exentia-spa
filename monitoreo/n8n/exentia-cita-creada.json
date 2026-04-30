@@ -1,0 +1,143 @@
+{
+  "name": "exentia-cita-creada",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "envio-exentia",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook (GHL appointment)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "envio-exentia"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normaliza payload — GHL puede mandar como query, body, o body string\nconst raw = $input.first().json;\nlet src = {};\nif (raw && typeof raw.body === 'object' && Object.keys(raw.body).length) src = raw.body;\nelse if (raw && typeof raw.query === 'object' && Object.keys(raw.query).length) src = raw.query;\nelse if (typeof raw === 'object') src = raw;\n\n// Parser de fecha GHL: \"Thursday, April 30, 2026 3:30 PM\" → ISO con offset Cancún (-05:00)\nconst MONTHS = {January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11};\nfunction parseGHLDate(s) {\n  if (!s || typeof s !== 'string') return null;\n  const m = s.match(/\\w+,\\s+(\\w+)\\s+(\\d+),\\s+(\\d+)\\s+(\\d+):(\\d+)\\s*(AM|PM)/i);\n  if (!m) return null;\n  let [, mon, day, year, h, mi, ap] = m;\n  let H = parseInt(h, 10) % 12;\n  if (/PM/i.test(ap)) H += 12;\n  const mon_n = MONTHS[mon];\n  if (mon_n === undefined) return null;\n  const pad = (n) => String(n).padStart(2, '0');\n  // Cancún = UTC-5 fijo (sin DST desde 2015)\n  return `${year}-${pad(mon_n + 1)}-${pad(day)}T${pad(H)}:${pad(mi)}:00-05:00`;\n}\n\n// Normaliza phone: \"998 346 3802\" → \"529983463802\"\nfunction normalizePhone(p) {\n  if (!p) return null;\n  const digits = String(p).replace(/\\D/g, '');\n  if (!digits) return null;\n  if (digits.startsWith('52')) return digits;\n  if (digits.length === 10) return '52' + digits;\n  return digits;\n}\n\nconst startISO = parseGHLDate(src.start_time);\nconst endISO = parseGHLDate(src.end_time);\nconst startDate = startISO ? startISO.slice(0, 10) : null;\nconst startTimeOnly = startISO ? startISO.slice(11, 19) : null;\nconst durationMin = (startISO && endISO) ? Math.round((new Date(endISO) - new Date(startISO)) / 60000) : null;\n\n// booking_code corto y único\nfunction shortCode() {\n  const ts = Date.now().toString(36).toUpperCase().slice(-5);\n  const rnd = Math.random().toString(36).toUpperCase().slice(2, 5);\n  return `EX-${ts}${rnd}`;\n}\n\nconst nombre = [src.first_name, src.last_name].filter(Boolean).join(' ').trim() || null;\n\nreturn [{\n  json: {\n    ghl_appointment_id: src.appointment_id || null,\n    ghl_contact_id: src.contact_id || null,\n    cliente_email: src.email || null,\n    cliente_telefono: normalizePhone(src.phone),\n    cliente_nombre: nombre,\n    fecha_agendada: startDate,\n    hora_agendada: startTimeOnly,\n    duracion_total_min: durationMin,\n    start_iso: startISO,\n    end_iso: endISO,\n    booking_code: shortCode(),\n    raw_start_time: src.start_time,\n    raw_end_time: src.end_time\n  }\n}];"
+      },
+      "id": "normalize",
+      "name": "Normalize payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "valid-appt",
+              "leftValue": "={{ $json.ghl_appointment_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "valid-date",
+              "leftValue": "={{ $json.fecha_agendada }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "validate",
+      "name": "Validate required fields",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO exentia.bookings (\n  booking_code, ghl_appointment_id, ghl_contact_id,\n  cliente_nombre, cliente_telefono, cliente_email,\n  servicios, fecha_agendada, hora_agendada, duracion_total_min,\n  estado\n) VALUES (\n  $1, $2, $3, $4, $5, $6, $7::jsonb, $8::date, $9::time, $10, 'reservo'\n)\nON CONFLICT (ghl_appointment_id) WHERE ghl_appointment_id IS NOT NULL\nDO UPDATE SET\n  fecha_agendada = EXCLUDED.fecha_agendada,\n  hora_agendada = EXCLUDED.hora_agendada,\n  duracion_total_min = COALESCE(EXCLUDED.duracion_total_min, exentia.bookings.duracion_total_min),\n  cliente_nombre = COALESCE(NULLIF(EXCLUDED.cliente_nombre, ''), exentia.bookings.cliente_nombre),\n  cliente_telefono = COALESCE(EXCLUDED.cliente_telefono, exentia.bookings.cliente_telefono),\n  cliente_email = COALESCE(NULLIF(EXCLUDED.cliente_email, ''), exentia.bookings.cliente_email),\n  ghl_contact_id = COALESCE(EXCLUDED.ghl_contact_id, exentia.bookings.ghl_contact_id)\nRETURNING id, booking_code, ghl_appointment_id, fecha_agendada, hora_agendada;",
+        "options": {
+          "queryReplacement": "={{ $json.booking_code }},{{ $json.ghl_appointment_id }},{{ $json.ghl_contact_id }},{{ $json.cliente_nombre }},{{ $json.cliente_telefono }},{{ $json.cliente_email }},{{ JSON.stringify([]) }},{{ $json.fecha_agendada }},{{ $json.hora_agendada }},{{ $json.duracion_total_min }}"
+        }
+      },
+      "id": "upsert-booking",
+      "name": "UPSERT bookings",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [900, 220],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_SUPABASE_CRED_ID",
+          "name": "Supabase n8n"
+        }
+      },
+      "continueOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, booking: $('UPSERT bookings').item.json, source: 'ghl_workflow' } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {"name": "Access-Control-Allow-Origin", "value": "*"}
+            ]
+          }
+        }
+      },
+      "id": "respond-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1340, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 400,
+        "responseBody": "={{ { ok: false, error: 'missing_required_fields', received: $('Normalize payload').item.json } }}"
+      },
+      "id": "respond-bad",
+      "name": "Respond 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 420]
+    }
+  ],
+  "connections": {
+    "Webhook (GHL appointment)": {
+      "main": [[{"node": "Normalize payload", "type": "main", "index": 0}]]
+    },
+    "Normalize payload": {
+      "main": [[{"node": "Validate required fields", "type": "main", "index": 0}]]
+    },
+    "Validate required fields": {
+      "main": [
+        [{"node": "UPSERT bookings", "type": "main", "index": 0}],
+        [{"node": "Respond 400", "type": "main", "index": 0}]
+      ]
+    },
+    "UPSERT bookings": {
+      "main": [[{"node": "Respond OK", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [{"name": "exentia"}]
+}
