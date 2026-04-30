@@ -2500,14 +2500,47 @@
         .catch(function () {});
     } catch (e) {}
 
-    // GA4 (si esta cargado)
+    // GA4 (si esta cargado) — eventos en español + parámetros enriquecidos
     if (typeof window.gtag === 'function') {
       try {
-        window.gtag('event', eventType, Object.assign({
+        var GA4_NAME_MAP = {
+          page_view: 'page_view',
+          scroll_25: 'scroll_25_pct',
+          scroll_50: 'scroll_50_pct',
+          scroll_75: 'scroll_75_pct',
+          scroll_100: 'scroll_100_pct',
+          service_card_view: 'vio_servicio',
+          service_select: 'eligio_servicio',
+          service_remove: 'quito_servicio',
+          service_detail_view: 'vio_detalle_servicio',
+          service_selector_open: 'abrio_selector_servicios',
+          form_modal_open: 'abrio_formulario',
+          form_start: 'empezo_formulario',
+          form_field_complete: 'lleno_campo',
+          form_submit_intent: 'envio_formulario_intento',
+          form_submit_whatsapp: 'envio_formulario_whatsapp',
+          calendar_view: 'abrio_calendario',
+          calendar_time_slot_click: 'eligio_horario',
+          calendar_booking_success: 'cita_agendada',
+          whatsapp_direct_click: 'click_whatsapp',
+          call_click: 'click_llamada',
+          photo_upload_start: 'empezo_subir_fotos',
+          photo_upload_complete: 'subio_fotos',
+          maps_link_paste: 'pego_link_maps',
+          cart_continue: 'continuo_con_carrito',
+          session_end: 'cerro_sesion'
+        };
+        var ga4Name = GA4_NAME_MAP[eventType] || eventType;
+        var ga4Params = Object.assign({
           lead_ref: LEAD_REF,
           session_id: session.id,
-          landing_version: LANDING_VERSION
-        }, extra || {}));
+          landing_version: LANDING_VERSION,
+          device_type: detectDevice(),
+          traffic_source: utmLast.utm_source || utmFirst.utm_source || (document.referrer ? 'referral' : 'directo'),
+          traffic_medium: utmLast.utm_medium || utmFirst.utm_medium || null,
+          campaign: utmLast.utm_campaign || utmFirst.utm_campaign || null
+        }, extra || {});
+        window.gtag('event', ga4Name, ga4Params);
       } catch (e) {}
     }
 
@@ -2537,6 +2570,25 @@
   // Expose globally
   window.exentiaTrack = send;
   window.ExentiaTrack = { send: send, ref: function () { return LEAD_REF; }, sid: session.id };
+
+  // === USER PROPERTIES GA4 (segmentación) ===
+  if (typeof window.gtag === 'function') {
+    try {
+      var came_from = utmLast.utm_source || utmFirst.utm_source ||
+        (document.referrer ? (
+          /instagram\.com/i.test(document.referrer) ? 'instagram' :
+          /facebook\.com/i.test(document.referrer) ? 'facebook' :
+          /google\./i.test(document.referrer) ? 'google_organic' : 'referral'
+        ) : 'directo');
+      window.gtag('set', 'user_properties', {
+        device_type: detectDevice(),
+        came_from: came_from,
+        has_lead_ref: !!LEAD_REF,
+        has_click_id: !!(clickIds.gclid || clickIds.fbclid || clickIds.msclkid),
+        landing_version: LANDING_VERSION
+      });
+    } catch (e) {}
+  }
 
   // === INITIAL PAGEVIEW ===
   if (document.readyState === 'loading') {
@@ -2599,6 +2651,17 @@
     });
   }
 
+  function getServiceMeta(slug) {
+    var s = (window.SERVICES || {})[slug];
+    if (!s) return { servicio_slug: slug };
+    return {
+      servicio_slug: slug,
+      servicio_nombre: s.title || s.name || slug,
+      servicio_categoria: s.category || s.title || slug,
+      servicio_treatments: Array.isArray(s.treatments) ? s.treatments.length : null
+    };
+  }
+
   function bindServiceCards() {
     // service_card_view via IntersectionObserver
     var cards = document.querySelectorAll('[data-service-slug]');
@@ -2606,7 +2669,7 @@
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
           if (e.isIntersecting) {
-            send('service_card_view', { servicio_slug: e.target.dataset.serviceSlug });
+            send('service_card_view', getServiceMeta(e.target.dataset.serviceSlug));
             io.unobserve(e.target);
           }
         });
@@ -2615,10 +2678,10 @@
     }
     // service_select on click
     bindClick('[data-event="service_select"]', 'service_select', function (el) {
-      return { servicio_slug: el.dataset.serviceSlug };
+      return getServiceMeta(el.dataset.serviceSlug);
     });
     bindClick('[data-event="service_detail_view"]', 'service_detail_view', function (el) {
-      return { servicio_slug: el.dataset.serviceSlug };
+      return getServiceMeta(el.dataset.serviceSlug);
     });
   }
 
@@ -2644,7 +2707,11 @@
     });
 
     form.addEventListener('submit', function () {
-      send('form_submit_intent');
+      var cart = window.cart || [];
+      send('form_submit_intent', {
+        servicios_seleccionados: cart.length,
+        servicios_lista: cart.join(', ')
+      });
     });
 
     // maps_link_paste
@@ -3263,7 +3330,7 @@
   // ============================================
   // SERVICES DATA
   // ============================================
-  const SERVICES = {
+  const SERVICES = window.SERVICES = {
     masajes: {
       slug: 'masajes',
       name: 'Masajes',
@@ -4398,11 +4465,40 @@
   var _openModal = window.openModal;
   if (typeof _openModal === 'function') {
     window.openModal = function(id){
+      var TITLES = {
+        'modal-form': 'Formulario de reserva | Exentia',
+        'modal-calendar': 'Agendar cita | Exentia',
+        'modal-select': 'Selección de servicios | Exentia'
+      };
+      if (TITLES[id]) {
+        try {
+          if (!window._exOriginalTitle) window._exOriginalTitle = document.title;
+          document.title = TITLES[id];
+          if (typeof window.gtag === 'function') {
+            window.gtag('event', 'page_view', {
+              page_title: TITLES[id],
+              page_location: location.href + '#' + id
+            });
+          }
+        } catch(e){}
+      }
       if (id === 'modal-form') T('form_modal_open');
       else if (id === 'modal-calendar') T('calendar_view');
       else if (id === 'modal-select') T('service_selector_open');
       return _openModal.apply(this, arguments);
     };
+    // Restaurar title al cerrar modal
+    var _closeModal = window.closeModal;
+    if (typeof _closeModal === 'function') {
+      window.closeModal = function(){
+        try {
+          if (window._exOriginalTitle) {
+            document.title = window._exOriginalTitle;
+          }
+        } catch(e){}
+        return _closeModal.apply(this, arguments);
+      };
+    }
   }
 
   // 4. Listen postMessage de iframes GHL (calendario + form)
@@ -4430,7 +4526,8 @@
   // 5. cart_continue (click en boton "Continuar" del badge flotante)
   document.querySelectorAll('.cb-btn').forEach(function(b){
     b.addEventListener('click', function(){
-      T('cart_continue', { items_count: (window.cart || []).length });
+      var c = window.cart || [];
+      T('cart_continue', { items_count: c.length, servicios_lista: c.join(', ') });
     });
   });
 
