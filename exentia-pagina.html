@@ -4533,6 +4533,48 @@
 
   console.log('[ex-bridge] hooks instalados');
 })();
+
+// Deep-link: ?openModal=modal-X (útil para emails/ads + screenshots demo)
+// FUERA del bridge IIFE para que funcione aunque tracker no haya cargado
+(function(){
+  try {
+    var qs = new URLSearchParams(location.search);
+    var demoModal = qs.get('openModal');
+    if (!demoModal || !/^modal-[a-z]+$/i.test(demoModal)) return;
+    var demoCart = qs.get('cart') === '1';
+    var demoMode = qs.get('mode'); // 'default' | 'calendar' (solo modal-form)
+    function tryOpen(){
+      if (typeof window.openModal !== 'function') {
+        return setTimeout(tryOpen, 100);
+      }
+      if (demoCart && typeof window.cart !== 'undefined') {
+        window.cart = ['Masaje Relajante', 'Limpieza Facial Profunda'];
+        try { localStorage.setItem('exentia_cart', JSON.stringify(window.cart)); } catch(e){}
+      }
+      window.openModal(demoModal);
+      // Forzar modo del formulario si se pidió
+      if (demoModal === 'modal-form' && demoMode) {
+        setTimeout(function(){
+          var modal = document.getElementById('modal-form');
+          var form = document.getElementById('custom-reserva-form');
+          if (modal) {
+            modal.classList.remove('mode-default', 'mode-calendar');
+            modal.classList.add('mode-' + demoMode);
+          }
+          if (form) {
+            form.classList.remove('mode-default', 'mode-calendar');
+            form.classList.add('mode-' + demoMode);
+          }
+        }, 200);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', tryOpen);
+    } else {
+      tryOpen();
+    }
+  } catch(e){}
+})();
 </script>
 
 </body>
